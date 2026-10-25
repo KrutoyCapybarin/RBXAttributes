@@ -1,0 +1,36 @@
+{
+  "AttrOffsets": {
+    "Instance": {
+      "Attributes": "0x38"
+    },
+    "Attribute": {
+      "Step": "0x58",
+      "Element": {
+        "TypeID": "0x08",
+        "Value": "0x18",
+        "StringSize": "0x28",
+        "StringCap": "0x30"
+      },
+      "KeyPtr": {
+        "Data": "0x00",
+        "Size": "0x10"
+      }
+    },
+    "TypeIds": {
+      "Bool": "0x8EF48F0",
+      "Color3_48": "0x8EECAF0",
+      "Color3_96": "0x8E3E7A0",
+      "Double": "0x8EED480",
+      "String": "0x8EED4D0",
+      "Vector3_36": "0x8EED570",
+      "Vector3_92": "0x8EEDB20",
+      "Vector3_56": "0x8EED520",
+      "Vector3_68": "0x8EECC30",
+      "Vector3_88": "0x8EECBE0",
+      "Vector3_76": "0x8EED340",
+      "Vector3_16": "0x8EED750",
+      "Vector3_92": "0x8EEC860",
+      "Vector3_96": "0x8EED7A0"
+    }
+  }
+}
