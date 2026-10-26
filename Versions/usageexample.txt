@@ -1,0 +1,10 @@
+--[[
+Hi there!
+You can either apapt my lua script from github.com/KrutoyCapybarin/RBXAttributes/releases to your env or use one of my ready-to-use python/c# exe builds.
+But you can also just use a file already dumped by me!
+
+To fetch a "file already dumper by me!" just make a logic that will visit:
+raw.githubusercontent.com/KrutoyCapybarin/RBXAttributes/refs/heads/main/Versions/version-VERSIONHASH/offsets.json/cs/json
+
+
+]]
