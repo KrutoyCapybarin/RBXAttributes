@@ -57,9 +57,7 @@ local function elemAt(e)
     return { key = k, tid = rdU(e + 0x08) }
 end
 
--- === АВТО-КЛАССИФИКАТОР ТИПОВ ===
 local function classifyElem(e)
-    -- 1. Проверяем на String (SSO или Heap)
     local sz = rdU(e + 0x28)
     if sz > 0 and sz <= 15 then
         local s = rdS(e + 0x18)
@@ -68,11 +66,9 @@ local function classifyElem(e)
         return "String"
     end
 
-    -- 2. Проверяем на Bool
     local raw = rdU(e + 0x18)
     if raw == 0 or raw == 1 then return "Bool" end
 
-    -- 3. Проверяем на Vector3 / Color3 (3 float)
     local f1, f2, f3 = rdf(e+0x18), rdf(e+0x1C), rdf(e+0x20)
     if f1 == f1 and f2 == f2 and f3 == f3 and math.abs(f1) < 1e6 and math.abs(f2) < 1e6 and math.abs(f3) < 1e6 then
         if f1 >= 0 and f1 <= 1 and f2 >= 0 and f2 <= 1 and f3 >= 0 and f3 <= 1 then
@@ -81,13 +77,11 @@ local function classifyElem(e)
         return "Vector3"
     end
 
-    -- 4. Checking for Vector2 (2 float)
     local f4 = rdf(e+0x24)
     if f1 == f1 and f2 == f2 and math.abs(f1) < 1e6 and math.abs(f2) < 1e6 and f4 ~= f4 then
         return "Vector2"
     end
 
-    -- 5. Checking for Double
     local d = rdD(e + 0x18)
     if d == d and math.abs(d) < 1e15 and (d == 0 or math.abs(d) > 1e-30) then
         return "Double"
