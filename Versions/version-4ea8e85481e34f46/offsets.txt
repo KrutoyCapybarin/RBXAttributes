@@ -1,0 +1,16 @@
+Instance::Attributes = 0x38
+Attribute::Step = 0x20
+Attribute::Hops = 0x3
+Attribute::ArrayField = 0x8
+Attribute::CountField = 0x10
+Attribute/Element::TypeID = 0x8
+Attribute/Element::Value = 0x18
+Attribute/Element::StringSize = 0x28
+Attribute/Element::StringCap = 0x30
+Attribute/KeyPtr::Data = 0x0
+Attribute/KeyPtr::Size = 0x10
+TypeIds::Bool = 0x8f02e80
+TypeIds::Double = 0x8f02fc0
+TypeIds::String = 0x8f03010
+TypeIds::Color3 = 0x8f03060
+TypeIds::Vector3 = 0x8f030b0
