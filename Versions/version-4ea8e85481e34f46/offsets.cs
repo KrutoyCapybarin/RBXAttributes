@@ -5,7 +5,7 @@ public static class AttrOffsets
         public const long ArrayField = 0x8;
         public const long CountField = 0x10;
         public const long Hops = 0x3;
-        public const long Step = 0x20;
+        public const long Step = 0x58;
 
         public static class Element
         {
@@ -31,8 +31,8 @@ public static class AttrOffsets
     {
         public const long Bool = 0x8F02E80;
         public const long Color3 = 0x8F03060;
-        public const long Double = 0x8F02FC0;
+        public const long Double = 0x8F030B0;
         public const long String = 0x8F03010;
-        public const long Vector3 = 0x8F030B0;
+        public const long Vector3 = 0x8F02FC0;
     }
 }

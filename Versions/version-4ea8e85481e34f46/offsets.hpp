@@ -9,7 +9,7 @@ namespace AttrOffsets {
         inline constexpr uintptr_t ArrayField = 0x8;
         inline constexpr uintptr_t CountField = 0x10;
         inline constexpr uintptr_t Hops = 0x3;
-        inline constexpr uintptr_t Step = 0x20;
+        inline constexpr uintptr_t Step = 0x58;
 
         namespace Element {
             inline constexpr uintptr_t StringCap = 0x30;
@@ -31,8 +31,8 @@ namespace AttrOffsets {
     namespace TypeIds {
         inline constexpr uintptr_t Bool = 0x8F02E80;
         inline constexpr uintptr_t Color3 = 0x8F03060;
-        inline constexpr uintptr_t Double = 0x8F02FC0;
+        inline constexpr uintptr_t Double = 0x8F030B0;
         inline constexpr uintptr_t String = 0x8F03010;
-        inline constexpr uintptr_t Vector3 = 0x8F030B0;
+        inline constexpr uintptr_t Vector3 = 0x8F02FC0;
     }
 }

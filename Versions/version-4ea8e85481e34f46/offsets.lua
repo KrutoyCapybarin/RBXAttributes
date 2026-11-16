@@ -4,7 +4,7 @@ AttrOffsets.Attribute = {
     ArrayField = 0x8,
     CountField = 0x10,
     Hops = 0x3,
-    Step = 0x20,
+    Step = 0x58,
 
     Element = {
         StringCap = 0x30,
@@ -25,9 +25,9 @@ AttrOffsets.Instance = {
 AttrOffsets.TypeIds = {
     Bool = 0x8F02E80,
     Color3 = 0x8F03060,
-    Double = 0x8F02FC0,
+    Double = 0x8F030B0,
     String = 0x8F03010,
-    Vector3 = 0x8F030B0,
+    Vector3 = 0x8F02FC0,
 }
 
 return AttrOffsets
