@@ -1,12 +1,10 @@
 --[[
 !!!HEADS UP!!!
 
-Hey little skid, before skidding it you need to understand that this script-
-- requires a ready-to-use enviroment, which you probably do not have.
+Hey little skid, before skidding it you need to understand that this script
+requires a ready-to-use environment, which you probably do not have.
 
-This file has 90% chance of not being useful to you. 
-Instead, check out 
-
+This file has a 90% chance of not being useful to you.
 ]]
 local hex = function(n) return string.format("0x%X", n) end
 local rdP = function(a) return memory_read("uintptr_t", a) end
@@ -57,7 +55,9 @@ local function elemAt(e)
     return { key = k, tid = rdU(e + 0x08) }
 end
 
+-- === AUTOMATIC TYPE CLASSIFIER ===
 local function classifyElem(e)
+    -- 1. Check for String (SSO or heap)
     local sz = rdU(e + 0x28)
     if sz > 0 and sz <= 15 then
         local s = rdS(e + 0x18)
@@ -66,9 +66,11 @@ local function classifyElem(e)
         return "String"
     end
 
+    -- 2. Check for Bool
     local raw = rdU(e + 0x18)
     if raw == 0 or raw == 1 then return "Bool" end
 
+    -- 3. Check for Vector3 / Color3 (3 floats)
     local f1, f2, f3 = rdf(e+0x18), rdf(e+0x1C), rdf(e+0x20)
     if f1 == f1 and f2 == f2 and f3 == f3 and math.abs(f1) < 1e6 and math.abs(f2) < 1e6 and math.abs(f3) < 1e6 then
         if f1 >= 0 and f1 <= 1 and f2 >= 0 and f2 <= 1 and f3 >= 0 and f3 <= 1 then
@@ -77,11 +79,13 @@ local function classifyElem(e)
         return "Vector3"
     end
 
+    -- 4. Check for Vector2 (2 floats)
     local f4 = rdf(e+0x24)
     if f1 == f1 and f2 == f2 and math.abs(f1) < 1e6 and math.abs(f2) < 1e6 and f4 ~= f4 then
         return "Vector2"
     end
 
+    -- 5. Check for Double
     local d = rdD(e + 0x18)
     if d == d and math.abs(d) < 1e15 and (d == 0 or math.abs(d) > 1e-30) then
         return "Double"
@@ -141,7 +145,7 @@ end
 if not bestStep or bestRatio < 0.5 then print("[CapyWareAttributeDump] FAIL: no ATTR_STEP"); return end
 print("[CapyWareAttributeDump] ATTR_STEP = " .. hex(bestStep))
 
--- Collecting TID and its first values
+-- Collect TypeIDs and their first values
 local uniqueTids = {}
 for _, a in ipairs(insts) do
     local c = containerAt(a, bestOff)
@@ -161,28 +165,54 @@ end
 local base = getbase()
 local cs_types, json_types, hpp_types = "", "", ""
 
--- Table should look good yk
+-- Keep the table sorted for readability
 local sortedTids = {}
 for tid, info in pairs(uniqueTids) do
-    table.insert(sortedTids, { tid = tid, name = info.name })
+    table.insert(sortedTids, { tid = tid, name = info.name, rva = tid - base })
 end
-table.sort(sortedTids, function(a, b) return a.name < b.name end)
+table.sort(sortedTids, function(a, b)
+    if a.name == b.name then return a.rva < b.rva end
+    return a.name < b.name
+end)
+
+-- Enforce mandatory TypeIds families before formatting.
+local hasBool, hasDouble = false, false
+for _, item in ipairs(sortedTids) do
+    if item.name:match("^Bool") then hasBool = true end
+    if item.name:match("^Double") then hasDouble = true end
+end
+if not hasBool or not hasDouble then
+    print("[CapyWareAttributeDump] FAIL: mandatory TypeIds Bool and/or Double not found")
+    for _, item in ipairs(sortedTids) do
+        print(string.format("  found: %s = 0x%X", item.name, item.rva))
+    end
+    return
+end
+
+-- If multiple types share a name, add an index suffix.
+local nameCounts, nameIndex = {}, {}
+for _, item in ipairs(sortedTids) do
+    nameCounts[item.name] = (nameCounts[item.name] or 0) + 1
+end
+for _, item in ipairs(sortedTids) do
+    local uniqueName = item.name
+    if nameCounts[item.name] > 1 then
+        nameIndex[item.name] = (nameIndex[item.name] or 0) + 1
+        uniqueName = item.name .. "_" .. tostring(nameIndex[item.name])
+    end
+    item.uniqueName = uniqueName
+end
 
 for _, item in ipairs(sortedTids) do
-    local rva = item.tid - base
-    local name = item.name
-    -- If theres multiple types with the same name we are adding a index
-    local uniqueName = name
-    local count = 0
-    for _, t in ipairs(sortedTids) do if t.name == name then count = count + 1 end end
-    if count > 1 then uniqueName = name .. "_" .. tostring(rva % 100) end
+    local rva = item.rva
+    local uniqueName = item.uniqueName
 
-    cs_types = cs_types .. string.format("            public const long %-14s = 0x%X;\n", uniqueName, rva)
+    cs_types = cs_types .. string.format("        public const long %-14s = 0x%X;\n", uniqueName, rva)
     json_types = json_types .. string.format("      \"%s\": \"0x%X\",\n", uniqueName, rva)
     hpp_types = hpp_types .. string.format("        constexpr uintptr_t %-14s = 0x%X;\n", uniqueName, rva)
 end
 
--- Formating (Without empty commas in JSON)
+-- Formatting (no trailing comma in JSON)
 json_types = json_types:gsub(",\n$", "\n")
 
 local csharp_fmt = string.format([[
@@ -195,11 +225,14 @@ public static class AttrOffsets
 
     public static class Attribute
     {
-        public const long Step = 0x%X;
+        public const long Step        = 0x%X;
+        public const long Hops        = 0x3;
+        public const long CountField  = 0x10;
+        public const long ArrayField  = 0x8;
 
         public static class Element
         {
-            public const long TypeID     = 0x08;
+            public const long TypeID     = 0x8;
             public const long Value      = 0x18;
             public const long StringSize = 0x28;
             public const long StringCap  = 0x30;
@@ -207,7 +240,7 @@ public static class AttrOffsets
 
         public static class KeyPtr
         {
-            public const long Data = 0x00;
+            public const long Data = 0x0;
             public const long Size = 0x10;
         }
     }
@@ -225,14 +258,17 @@ local json_fmt = string.format([[
     },
     "Attribute": {
       "Step": "0x%X",
+      "Hops": "0x3",
+      "CountField": "0x10",
+      "ArrayField": "0x8",
       "Element": {
-        "TypeID": "0x08",
+        "TypeID": "0x8",
         "Value": "0x18",
         "StringSize": "0x28",
         "StringCap": "0x30"
       },
       "KeyPtr": {
-        "Data": "0x00",
+        "Data": "0x0",
         "Size": "0x10"
       }
     },
@@ -252,16 +288,19 @@ namespace AttrOffsets {
 
     namespace Attribute {
         constexpr uintptr_t Step = 0x%X;
+        constexpr uintptr_t Hops = 0x3;
+        constexpr uintptr_t CountField = 0x10;
+        constexpr uintptr_t ArrayField = 0x8;
 
         namespace Element {
-            constexpr uintptr_t TypeID     = 0x08;
+            constexpr uintptr_t TypeID     = 0x8;
             constexpr uintptr_t Value      = 0x18;
             constexpr uintptr_t StringSize = 0x28;
             constexpr uintptr_t StringCap  = 0x30;
         }
 
         namespace KeyPtr {
-            constexpr uintptr_t Data = 0x00;
+            constexpr uintptr_t Data = 0x0;
             constexpr uintptr_t Size = 0x10;
         }
     }
@@ -270,7 +309,7 @@ namespace AttrOffsets {
 %s    }
 }]], bestOff, bestStep, hpp_types)
 
--- Печать
+-- Print output
 print("\n" .. string.rep("=", 60))
 print("C# FORMAT")
 print(string.rep("=", 60) .. "\n")
@@ -286,4 +325,4 @@ print("HPP FORMAT")
 print(string.rep("=", 60) .. "\n")
 print(hpp_fmt)
 
-print("CapyWareAttributeDump: I think we did a pretty good job so far - Mathieu Côté")
+print("CapyWareAttributeDump: I think we did a pretty good job so far - Mathieu Cote")
