@@ -29,9 +29,9 @@ public static class AttrOffsets
 
     public static class TypeIds
     {
+        public const long Color3 = 0x8D8A770;
         public const long String = 0x8D898D0;
         public const long String_68 = 0x8D8A900;
-        public const long Vector3 = 0x8D8A770;
-        public const long Vector3_28 = 0x8D8A9A0;
+        public const long Vector3 = 0x8D8A9A0;
     }
 }

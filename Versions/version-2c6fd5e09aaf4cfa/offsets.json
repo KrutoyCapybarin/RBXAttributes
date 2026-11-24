@@ -20,10 +20,10 @@
             "Attributes": "0x38"
         },
         "TypeIds": {
+            "Color3": "0x8D8A770",
             "String": "0x8D898D0",
             "String_68": "0x8D8A900",
-            "Vector3": "0x8D8A770",
-            "Vector3_28": "0x8D8A9A0"
+            "Vector3": "0x8D8A9A0"
         }
     }
 }

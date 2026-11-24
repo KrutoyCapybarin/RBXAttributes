@@ -29,9 +29,9 @@ namespace AttrOffsets {
     }
 
     namespace TypeIds {
+        inline constexpr uintptr_t Color3 = 0x8D8A770;
         inline constexpr uintptr_t String = 0x8D898D0;
         inline constexpr uintptr_t String_68 = 0x8D8A900;
-        inline constexpr uintptr_t Vector3 = 0x8D8A770;
-        inline constexpr uintptr_t Vector3_28 = 0x8D8A9A0;
+        inline constexpr uintptr_t Vector3 = 0x8D8A9A0;
     }
 }
